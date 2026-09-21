@@ -1,0 +1,76 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C-extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Ambientes virtuais
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# QA, Cobertura e Testes
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# PySpark / Hadoop / Big Data Local Storage
+spark-warehouse/
+metastore_db/
+derby.log
+checkpoint/
+checkpoints/
+*.parquet
+test_batch.parquet
+test_pq/
+data_exports/
+scratch/
+run_python.cmd
+
+# Dados brutos e exports locais
+data/
+*.csv
+*.json
+*.sqlite
+
+# IDEs e Sistema Operacional
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+desktop.ini

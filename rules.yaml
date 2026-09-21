@@ -1,0 +1,98 @@
+model_version: 1.0.0
+thresholds:
+  approve_below: 30
+  review_from: 30
+  block_from: 70
+scoring:
+  max_score: 100
+  cap_score_per_rule: 100
+streaming:
+  watermark_seconds: 600
+  processing_time_seconds: 1
+  socket_host: localhost
+  socket_port: 9999
+  checkpoint_dir: data/checkpoints
+features:
+  impossible_travel_limit_kmh: 900.0
+  travel_min_distance_km: 50.0
+  dormant_days: 180
+  amount_zscore_unusual: 3.0
+  amount_ratio_unusual: 1.5
+  new_device_ratio: 3.0
+  dormant_min_amount: 500.0
+  test_amount_max: 10.0
+  cloning_follow_window_min: 10
+  cloning_follow_ratio: 5.0
+  bin_denial_window_min: 15
+  bin_denial_min_count: 3
+merchant_risk:
+  high_risk_categories:
+  - '7995'
+  - '7996'
+  - '6051'
+  - '4829'
+  - '5816'
+  - '5999'
+  - '7800'
+  - '6012'
+rules:
+  card_cloning:
+    enabled: true
+    weight: 75
+    description: Teste de valor baixo (< R$ 10) seguido de compra alta (< 10 min)
+      em terminal diferente na mesma cidade, ou uso de tarja magnética com histórico
+      100% chip. Assinatura clássica de cartão clonado.
+    params:
+      test_amount_max: 10.0
+      follow_window_min: 10
+      follow_ratio: 5.0
+  unusual_amount:
+    enabled: true
+    weight: 35
+    description: 'Valor atípico: z-score > 5.5 e razão valor/média > 4.0 (mínimo R$
+      800) na janela de 90 dias.'
+    params:
+      zscore_min: 5.5
+      ratio_min: 4.0
+      min_amount: 800.0
+      min_history_txs: 5
+  impossible_travel:
+    enabled: true
+    weight: 80
+    description: Duas transações em cidades distantes em intervalo de tempo impossível
+      (velocidade implícita > 900 km/h). Sinal forte de clonagem geográfica.
+    params:
+      speed_limit_kmh: 900.0
+      min_distance_km: 50.0
+  new_device_high_amount:
+    enabled: true
+    weight: 45
+    description: Primeira transação em dispositivo nunca visto, com valor > 4.0x a
+      média (mínimo R$ 800).
+    params:
+      amount_ratio: 4.0
+      min_amount: 800.0
+  dormant_card_wake:
+    enabled: true
+    weight: 40
+    description: Cartão inativo > 180 dias com gasto repentino acima da média.
+    params:
+      dormant_days: 180
+      amount_ratio: 2.0
+      min_amount: 500.0
+  bin_attack:
+    enabled: true
+    weight: 75
+    description: Várias autorizações negadas seguidas no mesmo BIN (teste de números).
+    params:
+      window_min: 15
+      min_denials: 3
+  unusual_hour_and_place:
+    enabled: true
+    weight: 50
+    description: Compra em horário atípico (madrugada) em cidade nunca visitada pelo
+      cliente (mínimo R$ 300).
+    params:
+      untrusted_hour_start: 2
+      untrusted_hour_end: 4
+      min_amount: 300.0
