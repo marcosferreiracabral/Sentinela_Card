@@ -11,6 +11,8 @@ requires-python = ">=3.12"
 dependencies = [
     "pyspark>=3.5,<5.0",
     "PyYAML>=6.0",
+    "pandas>=2.0",
+    "pyarrow>=15.0",
 ]
 
 [project.optional-dependencies]
