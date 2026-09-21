@@ -1,6 +1,6 @@
 """Testes unitários para cada regra individual de detecção de fraude."""
 
-from app.config import Config, RuleCfg, load_config
+from app.config import load_config
 from app.rules.bin_attack import BinAttackRule
 from app.rules.card_cloning import CardCloningRule
 from app.rules.dormant_card_wake import DormantCardWakeRule

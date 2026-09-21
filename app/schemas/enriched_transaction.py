@@ -13,7 +13,6 @@ from pyspark.sql.types import (
 
 from app.schemas.transaction import TRANSACTION_SCHEMA
 
-
 FEATURE_FIELDS = [
     ("velocity_1min", LongType()),
     ("velocity_5min", LongType()),

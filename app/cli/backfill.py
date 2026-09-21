@@ -42,4 +42,3 @@ def run_backfill(spark: SparkSession, cfg: Config, source_path: str | Path, limi
     print(f"\nBatch processing completed in {elapsed:.2f}s ({rate:.0f} tx/s)")
     print_stats(result.stats)
     return result.stats
-

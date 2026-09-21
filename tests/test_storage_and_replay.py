@@ -1,14 +1,13 @@
 """Testes para persistência Parquet e replay idempotente."""
 
 from datetime import datetime, timezone
-from pathlib import Path
 
 from pyspark.sql import SparkSession
 
 from app.audit.replay import verify_replay
 from app.config import Config
 from app.schemas.transaction import TRANSACTION_SCHEMA
-from app.storage.reader import read_alerts, read_enriched, read_raw
+from app.storage.reader import read_enriched, read_raw
 from app.streaming.processor import FraudPipeline
 
 
@@ -54,11 +53,12 @@ class TestStorageAndReplay:
         ]
 
         import pandas as pd
+
         batch_df = spark.createDataFrame(pd.DataFrame(test_rows), schema=TRANSACTION_SCHEMA)
 
         # 2. Executa o pipeline com gravação
         pipeline = FraudPipeline(spark, test_config, write=True)
-        res1 = pipeline.process_batch(batch_df)
+        _ = pipeline.process_batch(batch_df)
 
         raw_df = read_raw(test_config, spark)
         enriched_df = read_enriched(test_config, spark)
@@ -68,7 +68,7 @@ class TestStorageAndReplay:
         assert enriched_df.count() == 2
 
         # 3. Teste de reprocessamento idempotente (segundo batch com mesmas IDs não duplica)
-        res2 = pipeline.process_batch(batch_df)
+        _ = pipeline.process_batch(batch_df)
         raw_df_after = read_raw(test_config, spark)
         enriched_df_after = read_enriched(test_config, spark)
         assert raw_df_after is not None

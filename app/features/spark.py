@@ -144,13 +144,21 @@ def attach_spark_features(batch: DataFrame, history: DataFrame | None, spark: Sp
     combined = combined.withColumn("velocity_1h", F.count(F.lit(1)).over(w_card.rangeBetween(-ONE_HOUR, -1)))
     combined = combined.withColumn("velocity_24h", F.count(F.lit(1)).over(w_card.rangeBetween(-ONE_DAY, -1)))
     combined = combined.withColumn("count_10min", F.count(F.lit(1)).over(w_card.rangeBetween(-TEN_MIN, -1)))
-    combined = combined.withColumn("sum_10min", F.coalesce(F.sum("amount").over(w_card.rangeBetween(-TEN_MIN, -1)), F.lit(0.0)))
-    combined = combined.withColumn("min_10min", F.coalesce(F.min("amount").over(w_card.rangeBetween(-TEN_MIN, -1)), F.lit(0.0)))
-    combined = combined.withColumn("amount_mean_90d", F.coalesce(F.avg("amount").over(w_cust.rangeBetween(-NINETY_DAYS, -1)), F.lit(0.0)))
+    combined = combined.withColumn(
+        "sum_10min", F.coalesce(F.sum("amount").over(w_card.rangeBetween(-TEN_MIN, -1)), F.lit(0.0))
+    )
+    combined = combined.withColumn(
+        "min_10min", F.coalesce(F.min("amount").over(w_card.rangeBetween(-TEN_MIN, -1)), F.lit(0.0))
+    )
+    combined = combined.withColumn(
+        "amount_mean_90d", F.coalesce(F.avg("amount").over(w_cust.rangeBetween(-NINETY_DAYS, -1)), F.lit(0.0))
+    )
     combined = combined.withColumn(
         "amount_std_90d", F.coalesce(F.stddev_samp("amount").over(w_cust.rangeBetween(-NINETY_DAYS, -1)), F.lit(0.0))
     )
-    combined = combined.withColumn("amount_count_90d", F.coalesce(F.count("amount").over(w_cust.rangeBetween(-NINETY_DAYS, -1)), F.lit(0)))
+    combined = combined.withColumn(
+        "amount_count_90d", F.coalesce(F.count("amount").over(w_cust.rangeBetween(-NINETY_DAYS, -1)), F.lit(0))
+    )
     combined = combined.withColumn(
         "bin_denials_15min",
         F.sum(F.when(F.col("auth_result") == "declined", 1).otherwise(0)).over(w_bin.rangeBetween(-BIN_WINDOW_SEC, -1)),
@@ -166,33 +174,48 @@ def attach_spark_features(batch: DataFrame, history: DataFrame | None, spark: Sp
     combined = combined.withColumn("prev_transaction_id", F.lag("transaction_id").over(w_prev))
 
     w_bin_prev = Window.partitionBy("bin").orderBy("ts_epoch", "transaction_id")
-    combined = combined.withColumn("prev_bin_approved", F.when(F.lag("auth_result").over(w_bin_prev) == "approved", True).otherwise(False))
+    combined = combined.withColumn(
+        "prev_bin_approved", F.when(F.lag("auth_result").over(w_bin_prev) == "approved", True).otherwise(False)
+    )
 
     tx_features_df = combined.filter(F.col("_src") == "batch").drop("_src", "ts_epoch", "bin")
 
     if history is not None and _has_rows(history):
-        for flag_col, base_col in [("new_terminal", "terminal_id"), ("new_device", "device_id"), ("new_city", "merchant_city")]:
-            seen = (
-                F.broadcast(
-                    history.select(F.col("card_id").alias("seen_card_id"), F.col(base_col).alias("seen_value"))
-                    .filter(F.col("seen_value").isNotNull())
-                    .distinct()
-                )
+        for flag_col, base_col in [
+            ("new_terminal", "terminal_id"),
+            ("new_device", "device_id"),
+            ("new_city", "merchant_city"),
+        ]:
+            seen = F.broadcast(
+                history.select(F.col("card_id").alias("seen_card_id"), F.col(base_col).alias("seen_value"))
+                .filter(F.col("seen_value").isNotNull())
+                .distinct()
             )
             tx_features_df = tx_features_df.join(
                 seen,
                 (tx_features_df["card_id"] == seen["seen_card_id"]) & (tx_features_df[base_col] == seen["seen_value"]),
                 "left",
             )
-            tx_features_df = tx_features_df.withColumn(flag_col, F.col("seen_value").isNull()).drop("seen_value", "seen_card_id")
+            tx_features_df = tx_features_df.withColumn(flag_col, F.col("seen_value").isNull()).drop(
+                "seen_value", "seen_card_id"
+            )
 
         non_chip = F.broadcast(
-            history.filter(~F.col("entry_mode").isin(list(CHIP_MODES))).select("card_id").distinct().withColumnRenamed("card_id", "non_chip_card")
+            history.filter(~F.col("entry_mode").isin(list(CHIP_MODES)))
+            .select("card_id")
+            .distinct()
+            .withColumnRenamed("card_id", "non_chip_card")
         )
         tx_features_df = tx_features_df.join(non_chip, tx_features_df["card_id"] == non_chip["non_chip_card"], "left")
-        tx_features_df = tx_features_df.withColumn("entry_mode_chip_only_history", F.col("non_chip_card").isNull()).drop("non_chip_card")
+        tx_features_df = tx_features_df.withColumn(
+            "entry_mode_chip_only_history", F.col("non_chip_card").isNull()
+        ).drop("non_chip_card")
     else:
-        for flag_col, _ in [("new_terminal", "terminal_id"), ("new_device", "device_id"), ("new_city", "merchant_city")]:
+        for flag_col, _ in [
+            ("new_terminal", "terminal_id"),
+            ("new_device", "device_id"),
+            ("new_city", "merchant_city"),
+        ]:
             tx_features_df = tx_features_df.withColumn(flag_col, F.lit(True))
         tx_features_df = tx_features_df.withColumn("entry_mode_chip_only_history", F.lit(False))
 

@@ -29,9 +29,7 @@ def sum_window(amounts: list[float], times: list[int], current: int, window_seco
     Returns:
         Cumulative transaction sum within the window.
     """
-    return sum(
-        a for a, t in zip(amounts, times, strict=False) if current - window_seconds <= t < current
-    )
+    return sum(a for a, t in zip(amounts, times, strict=False) if current - window_seconds <= t < current)
 
 
 def is_high_velocity(count: int | None, window_seconds: int, limit: int | None = None) -> bool:

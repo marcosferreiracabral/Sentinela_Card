@@ -2,7 +2,8 @@
 
 from typing import Any
 
-from pyspark.sql import SparkSession, functions as F
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
 
 from app.config import Config
 from app.storage.reader import read_enriched
@@ -73,7 +74,7 @@ def recompute_decision(spark: SparkSession, cfg: Config, transaction_id: str) ->
     """
     from app.schemas.transaction import TRANSACTION_SCHEMA
     from app.storage.reader import read_raw
-    from app.streaming.processor import FraudPipeline, RAW_KEYS
+    from app.streaming.processor import RAW_KEYS, FraudPipeline
 
     raw = read_raw(cfg, spark)
     if raw is None:
@@ -83,8 +84,7 @@ def recompute_decision(spark: SparkSession, cfg: Config, transaction_id: str) ->
         raise RecordNotFound(f"transaction {transaction_id} not found in raw dataset")
     tx_ts = row.iloc[0]["timestamp"]
     prior_history = raw.filter(
-        (F.col("timestamp") < tx_ts)
-        | ((F.col("timestamp") == tx_ts) & (F.col("transaction_id") != transaction_id))
+        (F.col("timestamp") < tx_ts) | ((F.col("timestamp") == tx_ts) & (F.col("transaction_id") != transaction_id))
     )
 
     cols = [k for k in RAW_KEYS if k in row.columns]

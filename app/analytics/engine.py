@@ -35,19 +35,25 @@ class AnalyticsEngine:
         if raw_df is not None:
             raw_df.createOrReplaceTempView("raw")
         else:
-            self.spark.createDataFrame(self.spark.sparkContext.emptyRDD(), schema=STORED_RAW_SCHEMA).createOrReplaceTempView("raw")
+            self.spark.createDataFrame(
+                self.spark.sparkContext.emptyRDD(), schema=STORED_RAW_SCHEMA
+            ).createOrReplaceTempView("raw")
 
         enriched_df = read_enriched(self.cfg, self.spark)
         if enriched_df is not None:
             enriched_df.createOrReplaceTempView("enriched")
         else:
-            self.spark.createDataFrame(self.spark.sparkContext.emptyRDD(), schema=STORED_ENRICHED_SCHEMA).createOrReplaceTempView("enriched")
+            self.spark.createDataFrame(
+                self.spark.sparkContext.emptyRDD(), schema=STORED_ENRICHED_SCHEMA
+            ).createOrReplaceTempView("enriched")
 
         alerts_df = read_alerts(self.cfg, self.spark)
         if alerts_df is not None:
             alerts_df.createOrReplaceTempView("alerts")
         else:
-            self.spark.createDataFrame(self.spark.sparkContext.emptyRDD(), schema=ALERT_SCHEMA).createOrReplaceTempView("alerts")
+            self.spark.createDataFrame(self.spark.sparkContext.emptyRDD(), schema=ALERT_SCHEMA).createOrReplaceTempView(
+                "alerts"
+            )
 
         labels_path = Path(self.cfg.data_dir) / "metadata" / "fraud_labels.parquet"
         if labels_path.exists():
@@ -61,7 +67,9 @@ class AnalyticsEngine:
                     StructField("fraud_type", StringType(), True),
                 ]
             )
-            self.spark.createDataFrame(self.spark.sparkContext.emptyRDD(), schema=fraud_label_schema).createOrReplaceTempView("fraud_labels")
+            self.spark.createDataFrame(
+                self.spark.sparkContext.emptyRDD(), schema=fraud_label_schema
+            ).createOrReplaceTempView("fraud_labels")
 
         self._views_registered = True
 
@@ -118,4 +126,3 @@ def run_analysis(spark: SparkSession, cfg: Config, query_name: str, show: bool =
     if show:
         print(engine.format_query_result(query_name))
     return result_df
-

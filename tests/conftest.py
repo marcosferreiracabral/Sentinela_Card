@@ -2,17 +2,14 @@
 
 import shutil
 import tempfile
+from collections.abc import Generator
 from pathlib import Path
 
 import pytest
 from pyspark.sql import SparkSession
 
-from app.config import Config, Thresholds, load_config
-
-
-from collections.abc import Generator
-
 from app import _setup_windows_java
+from app.config import Config, load_config
 
 _setup_windows_java()
 

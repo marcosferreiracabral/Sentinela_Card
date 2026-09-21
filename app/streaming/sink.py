@@ -82,7 +82,10 @@ def print_decisions(enriched: DataFrame, cfg: Config, names: dict[str, str] | No
         rules = list(r.get("triggered_rules") or [])
         suffix = f" ({', '.join(rules)})" if rules else ""
         color = COLORS.get(level, "")
-        print(f"{color}[{level:8s}]{RESET} {r['transaction_id']} {_brl(float(r['amount']))} {label} - score {score}{suffix}", flush=True)
+        print(
+            f"{color}[{level:8s}]{RESET} {r['transaction_id']} {_brl(float(r['amount']))} {label} - score {score}{suffix}",
+            flush=True,
+        )
 
 
 def print_stats(stats: dict[str, Any]) -> None:

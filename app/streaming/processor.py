@@ -4,7 +4,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-from pyspark.sql import DataFrame, Row, SparkSession, functions as F
+from pyspark.sql import DataFrame, Row, SparkSession
+from pyspark.sql import functions as F
 from pyspark.sql.types import DoubleType, StringType, StructField, StructType, TimestampType
 
 from app.config import Config
@@ -140,7 +141,9 @@ class FraudPipeline:
             results = evaluate_all(self.rules, tx, f)
             score, triggered, reasons = combine(results, max_score)
             level = decide(score, self.cfg.thresholds)
-            self._snapshots[tx["transaction_id"]] = to_json_snapshot({**f, "rule_reasons": reasons, "risk_score": round(float(score), 2)})
+            self._snapshots[tx["transaction_id"]] = to_json_snapshot(
+                {**f, "rule_reasons": reasons, "risk_score": round(float(score), 2)}
+            )
             enriched_rows.append(
                 {
                     "transaction_id": tx["transaction_id"],

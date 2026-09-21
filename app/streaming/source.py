@@ -3,7 +3,8 @@
 import json
 from typing import Any
 
-from pyspark.sql import DataFrame, SparkSession, functions as F
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import functions as F
 
 from app.config import Config
 from app.schemas.transaction import TRANSACTION_SCHEMA

@@ -9,7 +9,6 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-
 ALERT_SCHEMA = StructType(
     [
         StructField("transaction_id", StringType(), True),

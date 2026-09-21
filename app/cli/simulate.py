@@ -130,14 +130,18 @@ def load_seed_lines(spark: SparkSession | None, source: str) -> tuple[list[dict[
             "auth_result",
         ):
             record[col] = r[col]
-        record["timestamp"] = r["timestamp"].isoformat() if hasattr(r["timestamp"], "isoformat") else str(r["timestamp"])
+        record["timestamp"] = (
+            r["timestamp"].isoformat() if hasattr(r["timestamp"], "isoformat") else str(r["timestamp"])
+        )
         record["amount"] = round(float(r["amount"]), 2)
         records.append(record)
     lines = [json.dumps(x, ensure_ascii=False) for x in records]
     return records, lines
 
 
-def run_stream_demo(spark: SparkSession, cfg: Config, source: str, speed: str = SPEED_FAST, limit: int = 0) -> dict[str, Any]:
+def run_stream_demo(
+    spark: SparkSession, cfg: Config, source: str, speed: str = SPEED_FAST, limit: int = 0
+) -> dict[str, Any]:
     """Orchestrates real-time streaming demo with local socket source and Structured Streaming.
 
     Args:

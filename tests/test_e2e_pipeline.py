@@ -9,6 +9,7 @@ Valida os critérios de aceite:
 """
 
 from datetime import datetime, timedelta, timezone
+
 from pyspark.sql import SparkSession
 
 from app.config import Config
@@ -62,6 +63,7 @@ class TestEndToEndPipeline:
         ]
 
         import pandas as pd
+
         df = spark.createDataFrame(pd.DataFrame(cloning_txs), schema=TRANSACTION_SCHEMA)
         res = pipeline.process_batch(df)
 
@@ -118,6 +120,7 @@ class TestEndToEndPipeline:
         ]
 
         import pandas as pd
+
         df = spark.createDataFrame(pd.DataFrame(travel_txs), schema=TRANSACTION_SCHEMA)
         res = pipeline.process_batch(df)
 
@@ -155,6 +158,7 @@ class TestEndToEndPipeline:
         ]
 
         import pandas as pd
+
         df = spark.createDataFrame(pd.DataFrame(bakery_tx), schema=TRANSACTION_SCHEMA)
         res = pipeline.process_batch(df)
 
@@ -166,7 +170,9 @@ class TestEndToEndPipeline:
         assert bakery_res["risk_score"] < 30
         assert len(bakery_res["triggered_rules"]) == 0
 
-    def test_e2e_false_positive_rate_on_normal_transactions(self, spark: SparkSession, test_config: Config, tmp_data_dir):
+    def test_e2e_false_positive_rate_on_normal_transactions(
+        self, spark: SparkSession, test_config: Config, tmp_data_dir
+    ):
         # Gera 1000 transações sintéticas sem fraudes para validar FPR
         rows, summary = generate(
             spark=spark,
@@ -182,6 +188,7 @@ class TestEndToEndPipeline:
         )
 
         import pandas as pd
+
         df = spark.createDataFrame(pd.DataFrame(rows), schema=TRANSACTION_SCHEMA)
         pipeline = FraudPipeline(spark, test_config, write=False)
         res = pipeline.process_batch(df)

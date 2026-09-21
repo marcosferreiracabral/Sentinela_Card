@@ -5,7 +5,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from pyspark.sql import DataFrame, SparkSession, functions as F
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import functions as F
 
 from app.config import Config
 from app.schemas.alert import ALERT_SCHEMA
@@ -138,7 +139,9 @@ def _write_partitioned(df: DataFrame, path: str, spark: SparkSession) -> None:
     out_p = Path(path)
     out_p.mkdir(parents=True, exist_ok=True)
     table = pa.Table.from_pandas(pdf)
-    pq.write_to_dataset(table, root_path=str(out_p), partition_cols=["dt"], existing_data_behavior="overwrite_or_ignore")
+    pq.write_to_dataset(
+        table, root_path=str(out_p), partition_cols=["dt"], existing_data_behavior="overwrite_or_ignore"
+    )
 
 
 def upsert_raw(batch: DataFrame, cfg: Config, spark: SparkSession) -> None:

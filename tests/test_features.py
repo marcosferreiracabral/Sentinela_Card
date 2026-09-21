@@ -107,8 +107,8 @@ class TestAmountProfileFeatures:
 
 class TestMerchantRiskFeatures:
     def test_high_risk_categories(self):
-        assert is_high_risk_merchant("7995") is True   # Apostas
-        assert is_high_risk_merchant("6051") is True   # Câmbio / crypto
+        assert is_high_risk_merchant("7995") is True  # Apostas
+        assert is_high_risk_merchant("6051") is True  # Câmbio / crypto
         assert is_high_risk_merchant("5411") is False  # Supermercado
         assert is_high_risk_merchant(None) is False
 

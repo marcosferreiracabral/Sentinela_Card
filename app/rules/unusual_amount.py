@@ -34,7 +34,5 @@ class UnusualAmountRule(FraudRule):
             return self.noop()
         if zscore >= zscore_min and ratio >= ratio_min:
             mean = features.get("amount_mean_90d", 0)
-            return self.result(
-                f"valor R$ {amount:.2f} fora do padrão histórico (z={zscore:.1f}, média R$ {mean:.2f})"
-            )
+            return self.result(f"valor R$ {amount:.2f} fora do padrão histórico (z={zscore:.1f}, média R$ {mean:.2f})")
         return self.noop()
