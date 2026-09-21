@@ -1,0 +1,1 @@
+"""Synthetic transaction generation package for Sentinela_Card."""

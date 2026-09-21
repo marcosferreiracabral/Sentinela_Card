@@ -61,7 +61,18 @@ scratch/
 run_python.cmd
 
 # Dados brutos e exports locais
-data/
+data/alerts/
+data/audit/
+data/checkpoints/
+data/enriched/
+data/metadata/
+data/profiles/
+data/raw/
+data/tmp_diag/
+data/*.parquet
+data/*.csv
+data/*.json
+data/*.sqlite
 *.csv
 *.json
 *.sqlite
